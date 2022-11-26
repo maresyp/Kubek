@@ -1,7 +1,6 @@
 import pytest
 
-from src.kubek.cube import something
 
-
+@pytest.mark.skip(reason="Not implemented")
 def test_something():
     assert True
