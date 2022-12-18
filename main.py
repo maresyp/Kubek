@@ -1,9 +1,12 @@
+""" Starting point of application """
 from src.kubek.game import Game
 
 
 def main() -> None:
-    Game()
+    """ Starting point of application """
+    game = Game()
+    game.run()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

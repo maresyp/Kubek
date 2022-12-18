@@ -4,8 +4,8 @@ from src.kubek.cube import Cube
 from src.kubek.cube import Rotation
 
 
-def test_cube_rotation():
+def test_cube_rotation() -> None:
     with pytest.raises(ValueError):
         cube: Cube = Cube()
         cube.rotate_cube(Rotation.LEFT, 0)
-        cube.rotate_cube(Rotation.LEFT, -1)
+        cube.rotate_cube(Rotation.RIGHT, -1)
