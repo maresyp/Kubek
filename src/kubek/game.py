@@ -1,5 +1,5 @@
 from ursina import window, EditorCamera, Ursina
-from src.kubek.cube import Cube
+from src.kubek.cube import Cube, Rotation
 
 
 class Game(Ursina):
@@ -14,6 +14,9 @@ class Game(Ursina):
         window.fps_counter.enabled = True
         window.exit_button.visible = False
 
-        cube = Cube()
-        cube.generate_cubes()
-        EditorCamera()
+        self.camera = EditorCamera()
+        self.cube = Cube()
+
+    def input(self, *args):
+        super().input(*args)
+        self.cube.rotate_cube(Rotation.FRONT_RIGHT)
