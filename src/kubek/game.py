@@ -13,10 +13,7 @@ class Game(Ursina):
         window.borderless = False
         window.fps_counter.enabled = True
         window.exit_button.visible = False
-        EditorCamera()
-        self.load_game()
 
-    def load_game(self) -> None:
-        """Helper functions needed to load game"""
         cube = Cube()
-        cube.generate_cube()
+        cube.generate_cubes()
+        EditorCamera()

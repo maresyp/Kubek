@@ -1,8 +1,9 @@
 """ Module containing classes and methods to perform actions on cube """
 from enum import Enum, auto
 from typing import Self
-from ursina import Entity, color, Vec3
-import random
+from itertools import product
+
+from ursina import Entity, Vec3, color, load_texture
 
 
 class Colors(Enum):
@@ -16,7 +17,6 @@ class Colors(Enum):
 class Rotation(Enum):
     """Enumeration containing expected values for cube rotation"""
 
-    # TODO: add everything
     LEFT = auto()
     RIGHT = auto()
     UP = auto()
@@ -27,26 +27,20 @@ class Cube:
     """3D cube object"""
 
     def __init__(self) -> None:
-        pass
+        self.entities: list[Entity] = []
+        self.center = Entity()
 
-    def generate_cube(self) -> None:
+    def generate_cubes(self) -> None:
         """Actions needed to generate cube"""
-        entities: list[Entity] = []
 
-        for i in range(-1, 2):
-            for j in range(-1, 2):
-                for k in range(-1, 2):
-                    entities.append(
-                        Entity(
-                            position=Vec3(i, j, k),
-                            model="cube",
-                            texture="white_cube",
-                        )
-                    )
-
-        for cube in entities:
-            cube.color = random.choice(
-                [Colors.RED.value, Colors.GREEN.value, Colors.BLUE.value]
+        for pos in product((-1, 0, 1), repeat=3):
+            self.entities.append(
+                Entity(
+                    position=pos,
+                    model="model.obj",
+                    texture="texture.png",
+                    scale=0.5,
+                )
             )
 
     def rotate_cube(self, direction: Rotation, amount_of_rotations: int = 1) -> Self:
@@ -56,9 +50,8 @@ class Cube:
         for _ in range(amount_of_rotations):
             match direction:
                 case Rotation.LEFT:
-                    pass
+                    ...
                 case _:
                     raise ValueError(f"Illegal direction {direction}")
-            # rotate depending on direction
 
         return self
