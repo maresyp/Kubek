@@ -17,6 +17,8 @@ class Game(Ursina):
         self.camera = EditorCamera()
         self.cube = Cube()
 
-    def input(self, *args):
-        super().input(*args)
-        self.cube.rotate_cube(Rotation.FRONT_RIGHT)
+    def input(self, key, *args):
+        super().input(key, *args)
+        print(key)
+        if key in Cube.rotations:
+            self.cube.rotate_cube(key)
