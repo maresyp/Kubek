@@ -1,19 +1,15 @@
 """ Module containing classes and methods to perform actions on cube """
-from enum import Enum
 from typing import Self
 from itertools import product
+import random
+import numpy as np
 
-from ursina import Entity, scene
+from ursina import Entity, scene, Sequence, Func
+from ursina.ursinastuff import invoke
 
 
 class IncorrectRotation(Exception):
     """Exception indicating that rotation is incorrect"""
-
-
-class Rotation(Enum):
-    """Enumeration containing expected values for cube rotation"""
-
-    FRONT_RIGHT = "f"
 
 
 class Cube:
@@ -34,8 +30,9 @@ class Cube:
 
     def __init__(self) -> None:
         self.entities: list[Entity] = []
-        self.center = Entity()
-        self.current_animation = None
+        self.center: Entity = Entity()
+        self.current_animation: Sequence = Sequence()
+        self.moves: list[tuple[str, bool]] = []
         self.__generate_cubes()
 
     def __generate_cubes(self) -> None:
@@ -51,39 +48,11 @@ class Cube:
                 )
             )
 
-    def __snap_cube_to_closest_rotation(self, cube: Entity):
-        # find closest possible rotation
-        print(f"Before : {cube.world_rotation=}, {cube.world_position=}")
-        allowed_angles: list[int] = [-180, -90, 0, 90, 180]
-
-        x_min = min(allowed_angles, key=lambda x: abs(x - int(cube.world_rotation_x)))
-        x_diff: float = cube.world_rotation_x - x_min
-        if x_diff > 2.0:
-            raise IncorrectRotation(f"{x_diff}")
-
-        y_min = min(allowed_angles, key=lambda x: abs(x - int(cube.world_rotation_y)))
-        y_diff: float = cube.world_rotation_y - y_min
-        if y_diff > 2.0:
-            raise IncorrectRotation(f"{y_diff}")
-
-        z_min = min(allowed_angles, key=lambda x: abs(x - int(cube.world_rotation_z)))
-        z_diff: float = cube.world_rotation_z - z_min
-        if z_diff > 2.0:
-            raise IncorrectRotation(f"{z_diff}")
-
-        cube.world_rotation.x = x_min
-        cube.world_rotation.y = y_min
-        cube.world_rotation.z = z_min
-
-        print(f"{x_diff=}, {y_diff=}, {z_diff=}")
-
     def __find_relative_cubes(self, axis, layer) -> None:
         for entity in self.entities:
-            self.__snap_cube_to_closest_rotation(entity)  # TODO : bug tutaj napaw
             # assign global positions of cubes to their local position so they will stay in place
             entity.rotation = entity.world_rotation
             entity.position = round(entity.world_position, 1)
-
             entity.parent = scene
 
         # reset center position
@@ -105,31 +74,77 @@ class Cube:
                     raise ValueError(f"{axis} is not correct value")
 
     def rotate_cube(
-        self, direction: str, reverse: bool = False, amount_of_rotations: int = 1
+        self,
+        direction: str,
+        reverse: bool = False,
+        amount_of_rotations: int = 1,
+        rotation_duration: float = 0.5,
+        save_moves=True
     ) -> Self:
+        """Function responsible for rotation of cube"""
         if amount_of_rotations <= 0:
             raise ValueError("Number of rotations can't be less than 0")
 
-        if self.current_animation is not None:
-            if not self.current_animation.finished:
-                return self
+        print('Rotation requested')
+        if not self.current_animation.finished:
+            return self
 
         for _ in range(amount_of_rotations):
+            if save_moves:
+                self.moves.append((direction, reverse))
             axis, layer, angle = self.rotations[direction]
-            try:
-                self.__find_relative_cubes(axis=axis, layer=layer)
-                angle = -1 * angle if reverse else angle
+            self.__find_relative_cubes(axis=axis, layer=layer)
+            angle = -1 * angle if reverse else angle
 
-                match axis:
-                    case "x":
-                        self.current_animation = self.center.animate_rotation_x(angle, duration=0.5)
-                    case "y":
-                        self.current_animation = self.center.animate_rotation_y(angle, duration=0.5)
-                    case "z":
-                        self.current_animation = self.center.animate_rotation_z(angle, duration=0.5)
-                    case _:
-                        raise ValueError(f"{axis} is not correct value")
-            except IncorrectRotation as exception:
-                print(f"IncorrectRotation {exception}")
+            match axis:
+                case "x":
+                    self.current_animation = self.center.animate_rotation_x(
+                        angle, duration=rotation_duration
+                    )
+                case "y":
+                    self.current_animation = self.center.animate_rotation_y(
+                        angle, duration=rotation_duration
+                    )
+                case "z":
+                    self.current_animation = self.center.animate_rotation_z(
+                        angle, duration=rotation_duration
+                    )
+                case _:
+                    raise ValueError(f"{axis} is not correct value")
+
+        return self
+
+    def shuffle_cube(
+        self, rotations: int = 25, rotation_duration: float = 0.25
+    ) -> Self:
+        """ Method used to shuffle cube before playing """
+        if rotations <= 0:
+            raise ValueError("Amount of rotations can't be less than 0")
+        for delay in [(x * (rotation_duration + .1)) for x in range(rotations)]:
+            invoke(
+                Func(
+                    self.rotate_cube,
+                    random.choice(list(Cube.rotations.keys())),
+                    rotation_duration=rotation_duration,
+                ),
+                delay=delay,
+            )
+
+        return self
+
+    def backwards_solve(self, rotation_duration: float = 0.25) -> Self:
+        """Solving cube by doing every move but backwards """
+        for delay in [(x * (rotation_duration + .1)) for x in range(len(self.moves))]:
+            direction, reverse = self.moves.pop()
+            invoke(
+                Func(
+                    self.rotate_cube,
+                    direction,
+                    reverse=reverse,
+                    save_moves=False,
+                    rotation_duration=rotation_duration,
+                ),
+                delay=delay,
+            )
 
         return self
