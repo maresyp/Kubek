@@ -79,13 +79,12 @@ class Cube:
         reverse: bool = False,
         amount_of_rotations: int = 1,
         rotation_duration: float = 0.5,
-        save_moves=True
+        save_moves=True,
     ) -> Self:
         """Function responsible for rotation of cube"""
         if amount_of_rotations <= 0:
             raise ValueError("Number of rotations can't be less than 0")
 
-        print('Rotation requested')
         if not self.current_animation.finished:
             return self
 
@@ -117,10 +116,11 @@ class Cube:
     def shuffle_cube(
         self, rotations: int = 25, rotation_duration: float = 0.25
     ) -> Self:
-        """ Method used to shuffle cube before playing """
+        """Method used to shuffle cube before playing"""
         if rotations <= 0:
             raise ValueError("Amount of rotations can't be less than 0")
-        for delay in [(x * (rotation_duration + .1)) for x in range(rotations)]:
+
+        for delay in [(x * (rotation_duration + 0.1)) for x in range(rotations)]:
             invoke(
                 Func(
                     self.rotate_cube,
@@ -133,14 +133,14 @@ class Cube:
         return self
 
     def backwards_solve(self, rotation_duration: float = 0.25) -> Self:
-        """Solving cube by doing every move but backwards """
-        for delay in [(x * (rotation_duration + .1)) for x in range(len(self.moves))]:
+        """Solving cube by doing every move but backwards"""
+        for delay in [(x * (rotation_duration + 0.1)) for x in range(len(self.moves))]:
             direction, reverse = self.moves.pop()
             invoke(
                 Func(
                     self.rotate_cube,
                     direction,
-                    reverse=reverse,
+                    reverse=not reverse,
                     save_moves=False,
                     rotation_duration=rotation_duration,
                 ),
