@@ -1,6 +1,6 @@
 """module containing methods and classes needed to render game"""
 
-from ursina import window, EditorCamera, Ursina, Button, color, Text
+from ursina import window, EditorCamera, Ursina, Button, color, Text, Sky
 from ursina.input_handler import held_keys
 from src.kubek.cube import Cube
 
@@ -18,20 +18,21 @@ class Game(Ursina):
         window.exit_button.visible = False
 
         self.cube = Cube()
+        self.sky = Sky(texture='sky_sunset')
 
-        self.solve_button = Button(text='Solve cube', color=color.azure, scale=(.5, .5), x=-.5, visible=False)
-        self.solve_button.fit_to_text()
+        self.solve_button = Button(text='Solve cube', color=color.azure, scale=(.35, .10), x=-.5, visible=False)
+        # self.solve_button.fit_to_text()
         self.solve_button.on_click = self.cube.backwards_solve
 
-        self.shuffle_button = Button(text='Shuffle cube', color=color.azure, scale=(.5, .5), x=.5, visible=False)
-        self.shuffle_button.fit_to_text()
+        self.shuffle_button = Button(text='Shuffle cube', color=color.azure, scale=(.35, .10), x=-.5, y=-.11, visible=False)
+        # self.shuffle_button.fit_to_text()
         self.shuffle_button.on_click = self.cube.shuffle_cube
 
         self.buttons: list[Button] = []
         self.buttons.append(self.solve_button)
         self.buttons.append(self.shuffle_button)
 
-        self.moves_counter = Text(text='Licznik ruchów: 0', scale=2, x=0, y=.3)
+        self.moves_counter = Text(text='Licznik ruchów: 0', scale=2, x=-.75, y=.48)
 
         self.camera = EditorCamera()
         self.last_key = None

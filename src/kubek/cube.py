@@ -3,7 +3,7 @@ from typing import Self
 from itertools import product
 import random
 
-from ursina import Entity, scene, Sequence, Func
+from ursina import Entity, scene, Sequence, Func, Audio
 from ursina.ursinastuff import invoke
 
 
@@ -98,6 +98,7 @@ class Cube:
             self.__find_relative_cubes(axis=axis, layer=layer)
             angle = -1 * angle if reverse else angle
 
+            Audio('turn_effect.mp4')
             match axis:
                 case "x":
                     self.current_animation = self.center.animate_rotation_x(
