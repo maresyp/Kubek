@@ -2,7 +2,6 @@
 from typing import Self
 from itertools import product
 import random
-import numpy as np
 
 from ursina import Entity, scene, Sequence, Func
 from ursina.ursinastuff import invoke
@@ -33,7 +32,11 @@ class Cube:
         self.center: Entity = Entity()
         self.current_animation: Sequence = Sequence()
         self.moves: list[tuple[str, bool]] = []
+        self.amount_of_moves: int = 0
         self.__generate_cubes()
+
+    def get_amount_of_moves(self) -> int:
+        return self.amount_of_moves
 
     def __generate_cubes(self) -> None:
         """Actions needed to generate cube"""
@@ -80,7 +83,7 @@ class Cube:
         amount_of_rotations: int = 1,
         rotation_duration: float = 0.5,
         save_moves=True,
-    ) -> Self:
+    ) -> Self:  # type: ignore
         """Function responsible for rotation of cube"""
         if amount_of_rotations <= 0:
             raise ValueError("Number of rotations can't be less than 0")
@@ -115,10 +118,12 @@ class Cube:
 
     def shuffle_cube(
         self, rotations: int = 25, rotation_duration: float = 0.25
-    ) -> Self:
+    ) -> Self:  # type: ignore
         """Method used to shuffle cube before playing"""
         if rotations <= 0:
             raise ValueError("Amount of rotations can't be less than 0")
+
+        self.amount_of_moves = 0
 
         for delay in [(x * (rotation_duration + 0.1)) for x in range(rotations)]:
             invoke(
@@ -132,8 +137,11 @@ class Cube:
 
         return self
 
-    def backwards_solve(self, rotation_duration: float = 0.25) -> Self:
+    def backwards_solve(self, rotation_duration: float = 0.25) -> Self:  # type: ignore
         """Solving cube by doing every move but backwards"""
+
+        self.amount_of_moves = 0
+
         for delay in [(x * (rotation_duration + 0.1)) for x in range(len(self.moves))]:
             direction, reverse = self.moves.pop()
             invoke(

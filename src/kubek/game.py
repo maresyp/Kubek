@@ -1,6 +1,6 @@
 """module containing methods and classes needed to render game"""
 
-from ursina import window, EditorCamera, Ursina
+from ursina import window, EditorCamera, Ursina, Button, color, Text
 from ursina.input_handler import held_keys
 from src.kubek.cube import Cube
 
@@ -17,8 +17,23 @@ class Game(Ursina):
         window.fps_counter.enabled = True
         window.exit_button.visible = False
 
-        self.camera = EditorCamera()
         self.cube = Cube()
+
+        self.solve_button = Button(text='Solve cube', color=color.azure, scale=(.5, .5), x=-.5, visible=False)
+        self.solve_button.fit_to_text()
+        self.solve_button.on_click = self.cube.backwards_solve
+
+        self.shuffle_button = Button(text='Shuffle cube', color=color.azure, scale=(.5, .5), x=.5, visible=False)
+        self.shuffle_button.fit_to_text()
+        self.shuffle_button.on_click = self.cube.shuffle_cube
+
+        self.buttons: list[Button] = []
+        self.buttons.append(self.solve_button)
+        self.buttons.append(self.shuffle_button)
+
+        self.moves_counter = Text(text='Licznik ruchów: 0', scale=2, x=0, y=.3)
+
+        self.camera = EditorCamera()
         self.last_key = None
 
     def input(self, key, *args):
@@ -26,13 +41,16 @@ class Game(Ursina):
 
         if key == self.last_key:
             return
-
         self.last_key = key
-        if key == 'x':
-            self.cube.shuffle_cube()
 
-        if key == 'z':
-            self.cube.backwards_solve()
+        if key == 'escape':
+            for button in self.buttons:
+                if button.visible:
+                    button.visible = False
+                else:
+                    button.visible = True
 
         if key in Cube.rotations.keys():
+            self.cube.amount_of_moves += 1
+            self.moves_counter.text = f"Licznik ruchów {self.cube.get_amount_of_moves()}"
             self.cube.rotate_cube(key, reverse=held_keys["shift"])
