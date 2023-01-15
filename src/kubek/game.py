@@ -32,8 +32,6 @@ class Game(Ursina):
         self.buttons.append(self.solve_button)
         self.buttons.append(self.shuffle_button)
 
-        self.moves_counter = Text(text='Licznik ruchów: 0', scale=2, x=-.75, y=.48)
-
         self.camera = EditorCamera()
         self.last_key = None
 
@@ -52,6 +50,4 @@ class Game(Ursina):
                     button.visible = True
 
         if key in Cube.rotations.keys():
-            self.cube.amount_of_moves += 1
-            self.moves_counter.text = f"Licznik ruchów {self.cube.get_amount_of_moves()}"
             self.cube.rotate_cube(key, reverse=held_keys["shift"])

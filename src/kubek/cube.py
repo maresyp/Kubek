@@ -3,7 +3,7 @@ from typing import Self
 from itertools import product
 import random
 
-from ursina import Entity, scene, Sequence, Func, Audio
+from ursina import Entity, scene, Sequence, Func, Audio, Text
 from ursina.ursinastuff import invoke
 
 
@@ -32,11 +32,9 @@ class Cube:
         self.center: Entity = Entity()
         self.current_animation: Sequence = Sequence()
         self.moves: list[tuple[str, bool]] = []
-        self.amount_of_moves: int = 0
         self.__generate_cubes()
-
-    def get_amount_of_moves(self) -> int:
-        return self.amount_of_moves
+        self.amount_of_moves: int = 0
+        self.moves_counter = Text(text=f'Licznik ruchów: {self.amount_of_moves}', scale=2, x=-.75, y=.48)
 
     def __generate_cubes(self) -> None:
         """Actions needed to generate cube"""
@@ -83,6 +81,7 @@ class Cube:
         amount_of_rotations: int = 1,
         rotation_duration: float = 0.5,
         save_moves=True,
+        update_counter=True
     ) -> Self:  # type: ignore
         """Function responsible for rotation of cube"""
         if amount_of_rotations <= 0:
@@ -94,6 +93,11 @@ class Cube:
         for _ in range(amount_of_rotations):
             if save_moves:
                 self.moves.append((direction, reverse))
+
+            if update_counter:
+                self.amount_of_moves += 1
+                self.moves_counter.text = f'Licznik ruchów: {self.amount_of_moves}'
+
             axis, layer, angle = self.rotations[direction]
             self.__find_relative_cubes(axis=axis, layer=layer)
             angle = -1 * angle if reverse else angle
@@ -125,6 +129,7 @@ class Cube:
             raise ValueError("Amount of rotations can't be less than 0")
 
         self.amount_of_moves = 0
+        self.moves_counter.text = f'Licznik ruchów: {self.amount_of_moves}'
 
         for delay in [(x * (rotation_duration + 0.1)) for x in range(rotations)]:
             invoke(
@@ -132,6 +137,7 @@ class Cube:
                     self.rotate_cube,
                     random.choice(list(Cube.rotations.keys())),
                     rotation_duration=rotation_duration,
+                    update_counter=False
                 ),
                 delay=delay,
             )
@@ -142,6 +148,7 @@ class Cube:
         """Solving cube by doing every move but backwards"""
 
         self.amount_of_moves = 0
+        self.moves_counter.text = f'Licznik ruchów: {self.amount_of_moves}'
 
         for delay in [(x * (rotation_duration + 0.1)) for x in range(len(self.moves))]:
             direction, reverse = self.moves.pop()
@@ -151,6 +158,7 @@ class Cube:
                     direction,
                     reverse=not reverse,
                     save_moves=False,
+                    update_counter=False,
                     rotation_duration=rotation_duration,
                 ),
                 delay=delay,
