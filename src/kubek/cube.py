@@ -2,7 +2,6 @@
 from typing import Self
 from itertools import product
 import random
-
 from ursina import Entity, scene, Sequence, Func, Audio, Text
 from ursina.ursinastuff import invoke
 
@@ -29,12 +28,24 @@ class Cube:
 
     def __init__(self) -> None:
         self.entities: list[Entity] = []
+        self.moves: list[tuple[str, bool]] = []
         self.center: Entity = Entity()
         self.current_animation: Sequence = Sequence()
-        self.moves: list[tuple[str, bool]] = []
-        self.__generate_cubes()
         self.amount_of_moves: int = 0
         self.moves_counter = Text(text=f'Licznik ruchów: {self.amount_of_moves}', scale=2, x=-.75, y=.48)
+        self.cube_solved = Text(text=f'Udalo Ci sie ulozyc kostke', scale=2, x=-.25, y=.48, visible=False)
+
+        self.__generate_cubes()
+
+        self.starting_position: list[Entity] = []
+        for cube in self.entities:
+            self.starting_position.extend(
+                [
+                    cube.position.x,
+                    cube.position.y,
+                    cube.position.z,
+                ]
+            )
 
     def __generate_cubes(self) -> None:
         """Actions needed to generate cube"""
@@ -51,7 +62,7 @@ class Cube:
 
     def __find_relative_cubes(self, axis, layer) -> None:
         for entity in self.entities:
-            # assign global positions of cubes to their local position so they will stay in place
+            # assign global positions of cubes to their local position, so they will stay in place
             entity.rotation = entity.world_rotation
             entity.position = round(entity.world_position, 1)
             entity.parent = scene
@@ -73,6 +84,22 @@ class Cube:
                         entity.parent = self.center
                 case _:
                     raise ValueError(f"{axis} is not correct value")
+
+    def check_if_solved(self) -> None:
+        tmp = []
+        for cube in self.entities:
+            tmp.extend(
+                [
+                    round(cube.world_position.x, 1),
+                    round(cube.world_position.y, 1),
+                    round(cube.world_position.z, 1),
+                ]
+            )
+
+        if tmp == self.starting_position:
+            self.cube_solved.visible = True
+        else:
+            self.cube_solved.visible = False
 
     def rotate_cube(
         self,
@@ -102,7 +129,9 @@ class Cube:
             self.__find_relative_cubes(axis=axis, layer=layer)
             angle = -1 * angle if reverse else angle
 
+            # Play sound effect of cube turn
             Audio('turn_effect.mp4')
+
             match axis:
                 case "x":
                     self.current_animation = self.center.animate_rotation_x(
