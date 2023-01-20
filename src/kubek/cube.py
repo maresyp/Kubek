@@ -85,7 +85,7 @@ class Cube:
                 case _:
                     raise ValueError(f"{axis} is not correct value")
 
-    def check_if_solved(self) -> None:
+    def check_if_solved(self) -> bool:
         tmp = []
         for cube in self.entities:
             tmp.extend(
@@ -96,10 +96,7 @@ class Cube:
                 ]
             )
 
-        if tmp == self.starting_position:
-            self.cube_solved.visible = True
-        else:
-            self.cube_solved.visible = False
+        return tmp == self.starting_position
 
     def rotate_cube(
         self,
