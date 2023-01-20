@@ -86,6 +86,11 @@ class Cube:
                     raise ValueError(f"{axis} is not correct value")
 
     def check_if_solved(self) -> bool:
+
+        # if list of moves is empty consider cube to not be solved
+        if not self.moves:
+            return False
+
         tmp = []
         for cube in self.entities:
             tmp.extend(

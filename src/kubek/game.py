@@ -65,4 +65,6 @@ class Game(Ursina):
 
     def start_timer(self) -> None:
         self.start_time = datetime.time(datetime.now())
+        self.cube.amount_of_moves = 0
+        self.cube.moves_counter.text = f'Licznik ruchów: {self.cube.amount_of_moves}'
         self.game_started = True

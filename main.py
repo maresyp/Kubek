@@ -15,6 +15,7 @@ def update():
         if game.cube.check_if_solved():
             game.cube.cube_solved.visible = True
             game.game_started = False
+            game.cube.moves.clear()
         else:
             game.cube.cube_solved.visible = False
 
