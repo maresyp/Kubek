@@ -26,10 +26,10 @@ class Game(Ursina):
         self.start_time = datetime.time(datetime.now())
         self.timer = Text(text=f'Czas: 0:00:00', scale=2, x=-.75, y=.38)
 
-        self.solve_button = Button(text='Solve cube', color=color.azure, scale=(.35, .10), x=-.5, visible=False)
+        self.solve_button = Button(text='Ułożenie kostki', color=color.azure, scale=(.35, .10), x=-.5, visible=False)
         self.solve_button.on_click = self.cube.backwards_solve
 
-        self.shuffle_button = Button(text='Shuffle cube', color=color.azure, scale=(.35, .10), x=-.5, y=-.11,
+        self.shuffle_button = Button(text='Przetasowanie kostki', color=color.azure, scale=(.35, .10), x=-.5, y=-.11,
                                      visible=False)
         self.shuffle_button.on_click = self.cube.shuffle_cube
 
